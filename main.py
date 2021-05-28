@@ -1,5 +1,4 @@
 # %%
-
 import pyopencl as cl
 import numpy as np
 from timeit import default_timer as timer
@@ -60,10 +59,14 @@ try:
   print("Succesfully loaded scores from file")
 except IOError:
   try:
-    scores = np.genfromtxt("score.csv", delimiter=',', dtype=int)
+    print("no .npy file, loading from csv")
+    scores = np.genfromtxt("scores.csv", delimiter=',', dtype=int)
+    zeros = np.zeros((scores.shape[0],3), dtype=int)
+    scores = np.concatenate((scores,zeros), axis=1)
     np.save("scores.npy", scores)
+    print("Succesfully loaded scores from csv")
   except IOError:
-    print("no scores file, generating sample file")
+    print("no csv file, generating sample file")
 
     scores_py = [[1618, 1486, 266, 50, 76, 0, 0, 0],
               [75365, 164164, 55766, 4705, 6490, 0, 0, 0],
@@ -153,7 +156,7 @@ for i in range(grid_length):
 # %%
 
 with open('results.csv', 'w', newline='') as results_file:
-  writer = csv.writer(results_file, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+  writer = csv.writer(results_file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
   writer.writerow(['idx', 'psi', 'rho', 'log_likelihood'])
   for (i, idx) in enumerate(max_likelihood_idx):
     writer.writerow([i, grid[idx*10], grid[idx*10+1], max_likelihood[i]])
