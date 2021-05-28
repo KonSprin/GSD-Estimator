@@ -59,22 +59,26 @@ try:
   scores = np.load("scores.npy")
   print("Succesfully loaded scores from file")
 except IOError:
-  print("no scores file, generating sample file")
+  try:
+    scores = np.genfromtxt("score.csv", delimiter=',', dtype=int)
+    np.save("scores.npy", scores)
+  except IOError:
+    print("no scores file, generating sample file")
 
-  scores_py = [[1618, 1486, 266, 50, 76, 0, 0, 0],
-            [75365, 164164, 55766, 4705, 6490, 0, 0, 0],
-            [5097, 7645, 30583, 198794, 265059, 0, 0, 0],
-            [265059, 198794, 30583, 7645, 5097, 0, 0, 0]]
-  
-  tmp = []
+    scores_py = [[1618, 1486, 266, 50, 76, 0, 0, 0],
+              [75365, 164164, 55766, 4705, 6490, 0, 0, 0],
+              [5097, 7645, 30583, 198794, 265059, 0, 0, 0],
+              [265059, 198794, 30583, 7645, 5097, 0, 0, 0]]
+    
+    tmp = []
 
-  for a in range(200):
-    for score in scores_py:
-      tmp.append(score)
-  
-  scores = np.array(tmp, dtype=int)
+    for a in range(200):
+      for score in scores_py:
+        tmp.append(score)
+    
+    scores = np.array(tmp, dtype=int)
 
-  np.save("scores.npy", scores)
+    np.save("scores.npy", scores)
 
 timer_scores = timer()
 print("Loaded Scores: " + str(timer_scores - timer_grid))
