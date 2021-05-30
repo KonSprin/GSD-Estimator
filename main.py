@@ -48,11 +48,6 @@ except IOError:
 timer_grid = timer()
 print("Loaded Grid: " + str(timer_grid - timer_context))
 
-# grid2d = np.resize(grid, (int(grid.shape[0]/10), 10))
-# plt.plot(grid2d[2,:])
-# plt.show()
-# sys.exit(0)
-
 # %% Load the scores
 try: 
   scores = np.load("scores.npy")
@@ -60,37 +55,25 @@ try:
 except IOError:
   try:
     print("no .npy file, loading from csv")
+
     scores = np.genfromtxt("scores.csv", delimiter=',', dtype=int)
     zeros = np.zeros((scores.shape[0],3), dtype=int)
     scores = np.concatenate((scores,zeros), axis=1)
     np.save("scores.npy", scores)
+
     print("Succesfully loaded scores from csv")
   except IOError:
-    print("no csv file, generating sample file")
-
-    scores_py = [[1618, 1486, 266, 50, 76, 0, 0, 0],
-              [75365, 164164, 55766, 4705, 6490, 0, 0, 0],
-              [5097, 7645, 30583, 198794, 265059, 0, 0, 0],
-              [265059, 198794, 30583, 7645, 5097, 0, 0, 0]]
-    
-    tmp = []
-
-    for a in range(200):
-      for score in scores_py:
-        tmp.append(score)
-    
-    scores = np.array(tmp, dtype=int)
-
-    np.save("scores.npy", scores)
+    print("no csv file. Please provide one")
+    sys.exit(1)
 
 timer_scores = timer()
 print("Loaded Scores: " + str(timer_scores - timer_grid))
 
+# %% create the buffers to hold the values of the input
 grid_length = int(grid.shape[0]/10)
 scores_length = scores.shape[0]
-out = np.empty(scores_length*grid_length, dtype=np.float32)
+out = np.empty((grid_length,scores_length), dtype=np.float32)
 
-# %% create the buffers to hold the values of the input
 grid_buf = cl.Buffer(cntxt, cl.mem_flags.READ_ONLY | 
 cl.mem_flags.COPY_HOST_PTR,hostbuf=grid)
 
@@ -145,13 +128,9 @@ timer_calc = timer()
 print ("calculaiton time: " + str(timer_calc - timer_kernel))
 
 # %%
-max_likelihood = [float('-inf')] * scores_length
 max_likelihood_idx = [0] * scores_length
-for i in range(grid_length):
-  for n in range(scores_length):
-    if (out[i * scores_length + n] > max_likelihood[n]):
-      max_likelihood[n] = out[i * scores_length + n]
-      max_likelihood_idx[n] = i
+for i in range(scores_length):
+  max_likelihood_idx[i] = out[:,i].argmax()
 
 # %%
 
@@ -159,13 +138,7 @@ with open('results.csv', 'w', newline='') as results_file:
   writer = csv.writer(results_file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
   writer.writerow(['idx', 'psi', 'rho', 'log_likelihood'])
   for (i, idx) in enumerate(max_likelihood_idx):
-    writer.writerow([i, grid[idx*10], grid[idx*10+1], max_likelihood[i]])
-
-# print the output
-# print ("Grid :", grid)
-# print ("Output :", out)
-# print (grid.shape)
-# print (out.shape)
+    writer.writerow([i, grid[idx*10], grid[idx*10+1], out[idx,i]])
 
 timer_end = timer()
 print ("Finding max: " + str(timer_end - timer_calc))
