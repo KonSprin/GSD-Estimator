@@ -70,7 +70,7 @@ def create_buffers(cntxt, grid, scores, out):
 
   return (grid_buf, scores_buf, out_buf)
 
-def estimator(cntxt, scores_length):
+def estimator_program(cntxt, scores_length):
   code = """
   typedef struct __attribute__ ((packed)) { \
     float psi; \

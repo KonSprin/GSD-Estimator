@@ -35,13 +35,13 @@ timer_buffers = timer()
 print("Created Buffers: " + str(timer_buffers - timer_scores))
 
 # %% Kernel
-estiamtor = estimator(cntxt, scores_length)
+estimator_prog = estimator_program(cntxt, scores_length)
 
 timer_kernel = timer()
 print ("Builded kernel: " + str(timer_kernel - timer_buffers))
 
 # %%
-estiamtor(queue, grid.shape, None, grid_buf, scores_buf, out_buf)
+estimator_prog(queue, grid.shape, None, grid_buf, scores_buf, out_buf)
 cl.enqueue_copy(queue, out, out_buf)
 
 timer_calc = timer()
