@@ -20,4 +20,4 @@ Estimator for [Generalized Score Distibution's](https://arxiv.org/abs/1909.04369
 1. ~~Optimize finding max likelihood loop to be less bad~~ DONE
 2. Manage memory to not allocate too much in VRAM 
 3. Manage input values not to use default files
-4. Refactor main to functions
+4. ~~Refactor main to functions~~ DONE
