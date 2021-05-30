@@ -14,6 +14,11 @@ Estimator for [Generalized Score Distibution's](https://arxiv.org/abs/1909.04369
   * psi - estimated mean (rating)
   * rho - estimated variance
   * log_likelihood - logarithm of likelihood value
+* While `main.py` is implementation with timers and debug prints, the `GSDestimator.py` is meant to be used as standalone function inside oher code that takes only samples and grid files as input and handles everything else:
+  ```
+  import GSDestimator
+  GSDestimator.start()
+  ```
 
 ## TODO
 
