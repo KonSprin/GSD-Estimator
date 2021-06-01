@@ -19,7 +19,7 @@ timer_grid = timer()
 print("Loaded Grid: " + str(timer_grid - timer_context))
 
 # %% Load the scores
-scores = load_scores()
+scores = load_scores("scores.npy")
 
 timer_scores = timer()
 print("Loaded Scores: " + str(timer_scores - timer_grid))

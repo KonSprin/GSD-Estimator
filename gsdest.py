@@ -17,11 +17,11 @@ def create_context():
 def load_grid(filename="gsd_prob_grid.npy"):
   try:
     grid = np.load(filename)
-    print("Succesfully loaded grid from file")
-  except IOError:
-    print("no numpy file, trying pandas")
+    # print("Succesfully loaded grid from file")
+  except:
+    # print("no numpy file, trying pandas")
     try:
-      dataframe = pandas.read_pickle("gsd_prob_grid.pkl")
+      dataframe = pandas.read_pickle(filename)
             
       grid_py = []
 
@@ -43,17 +43,22 @@ def load_grid(filename="gsd_prob_grid.npy"):
 def load_scores(filename="scores.npy"):
   try: 
     scores = np.load(filename)
-    print("Succesfully loaded scores from file")
-  except IOError:
+    # print("Succesfully loaded scores from file")
+  except:
     try:
-      print("no .npy file, loading from csv")
+      # print("no .npy file, loading from csv")
 
-      scores = np.genfromtxt("scores.csv", delimiter=',', dtype=int)
+      scores = np.genfromtxt(filename, delimiter=' ', dtype=int)
       zeros = np.zeros((scores.shape[0],3), dtype=int)
       scores = np.concatenate((scores,zeros), axis=1)
       np.save("scores.npy", scores)
 
-      print("Succesfully loaded scores from csv")
+      # print("Succesfully loaded scores from csv")
+    except np.AxisError:
+      scores = np.genfromtxt(filename, delimiter=',', dtype=int)
+      zeros = np.zeros((scores.shape[0],3), dtype=int)
+      scores = np.concatenate((scores,zeros), axis=1)
+      np.save("scores.npy", scores)
     except IOError:
       print("no csv file. Please provide one")
       sys.exit(1)
@@ -112,3 +117,24 @@ def save_results(max_likelihood_idx, grid, out):
     writer.writerow(['idx', 'psi', 'rho', 'log_likelihood'])
     for (i, idx) in enumerate(max_likelihood_idx):
       writer.writerow([i, grid[idx*10], grid[idx*10+1], out[idx,i]])
+
+
+def start(scores_filename="scores.npy", grid_filename="gsd_prob_grid.npy"):
+  queue, cntxt = create_context()
+  grid = load_grid(grid_filename)
+  scores = load_scores(scores_filename)
+
+  grid_length = int(grid.shape[0]/10)
+  scores_length = scores.shape[0]
+  out = np.empty((grid_length,scores_length), dtype=np.float32)
+
+  grid_buf, scores_buf, out_buf = create_buffers(cntxt, grid, scores, out)
+
+  estimator_prog = estimator_program(cntxt, scores_length)
+
+  estimator_prog(queue, grid.shape, None, grid_buf, scores_buf, out_buf)
+  cl.enqueue_copy(queue, out, out_buf)
+
+  max_likelihood_idx = find_max_likelihoods(out, scores_length)
+
+  save_results(max_likelihood_idx, grid, out)
