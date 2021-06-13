@@ -27,4 +27,4 @@ Estimator for [Generalized Score Distibution's](https://arxiv.org/abs/1909.04369
 2. Manage memory to not allocate too much in VRAM 
 3. ~~Manage input values not to use default files~~ <span style="color:green">DONE</span>
 4. ~~Refactor main to functions~~ <span style="color:green">DONE</span>
-5. Make normal logger instead of simple prints 
+5. ~~Make normal logger instead of simple prints~~ <span style="color:green">DONE</span>

@@ -3,6 +3,11 @@ import pyopencl as cl
 import numpy as np
 from timeit import default_timer as timer
 from gsdest import *
+import logging
+
+logging.basicConfig(filename='gsd.log', filemode='w', 
+                    level=logging.DEBUG,
+                    format='%(levelname)s: %(module)s %(asctime)s %(message)s')
 
 # %% Create a context
 timer_start = timer()
